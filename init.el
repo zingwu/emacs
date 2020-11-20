@@ -39,21 +39,36 @@ This function should only modify configuration layer settings."
      ;; `M-m f e R' (Emacs style) to install them.
      ;; ----------------------------------------------------------------
      ;; auto-completion
-     ;; better-defaults
+     better-defaults
      emacs-lisp
      git
      helm
+     ivy
      lsp
      markdown
-     multiple-cursors
-     org
+
+     (org :variables org-enable-github-support t)
      (shell :variables
-             shell-default-height 30
-             shell-default-position 'bottom)
+            shell-default-shell 'vterm
+            shell-default-height 30
+            shell-default-position 'bottom)
      ;; spell-checking
      syntax-checking
      ;; version-control
-     treemacs)
+     treemacs
+     themes-megapack
+     auto-completion
+
+     (osx :variables
+          osx-command-as       'meta
+          osx-option-as        'meta
+          osx-control-as       'control
+          osx-function-as      'control
+          osx-right-command-as 'left
+          osx-right-option-as  'left
+          osx-right-control-as 'left
+          osx-swap-option-and-command nil)
+     )
 
 
    ;; List of additional packages that will be installed without being wrapped
@@ -211,7 +226,8 @@ It should only modify the values of Spacemacs settings."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(spacemacs-dark
+   dotspacemacs-themes '(solarized-dark
+                         spacemacs-dark
                          spacemacs-light)
 
    ;; Set the theme for the Spaceline. Supported themes are `spacemacs',
@@ -221,7 +237,7 @@ It should only modify the values of Spacemacs settings."
    ;; refer to the DOCUMENTATION.org for more info on how to create your own
    ;; spaceline theme. Value can be a symbol or list with additional properties.
    ;; (default '(spacemacs :separator wave :separator-scale 1.5))
-   dotspacemacs-mode-line-theme '(spacemacs :separator wave :separator-scale 1.5)
+   dotspacemacs-mode-line-theme '(spacemacs :separator arrow :separator-scale 0.5)
 
    ;; If non-nil the cursor color matches the state color in GUI Emacs.
    ;; (default t)
@@ -383,7 +399,7 @@ It should only modify the values of Spacemacs settings."
    ;;   :size-limit-kb 1000)
    ;; When used in a plist, `visual' takes precedence over `relative'.
    ;; (default nil)
-   dotspacemacs-line-numbers nil
+   dotspacemacs-line-numbers t
 
    ;; Code folding method. Possible values are `evil', `origami' and `vimish'.
    ;; (default 'evil)
@@ -503,6 +519,25 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
           ("gnu-tuna"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
           ("org-cn"     . "http://elpa.emacs-china.org/org/")
           ("gnu-cn"     . "http://elpa.emacs-china.org/gnu/")))
+
+  ;; ===========================================================================
+  ;; chinese and english font config
+  ;; ===========================================================================
+
+  (set-face-attribute
+   'default nil
+   :font (font-spec :name "-*-Source Code Pro-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1"
+                    :weight 'normal
+                    :slant 'normal
+                    :size 14))
+  (dolist (charset '(kana han symbol cjk-misc bopomofo))
+    (set-fontset-font
+     (frame-parameter nil 'font)
+     charset
+     (font-spec :name "-*-STKaiti-normal-normal-normal-*-*-*-*-*-p-0-iso10646-1"
+                :weight 'normal
+                :slant 'normal
+                :size 16.5)))
   )
 
 (defun dotspacemacs/user-load ()
@@ -518,6 +553,35 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
+  ;; ==============================================================================
+  ;; org mode config
+  ;; ==============================================================================
+
+  (setq org-hide-emphasis-markers t)
+
+  ;; Set to prevent editing of invisible text
+  (setq org-catch-invisible-edits 'error)
+
+  ;; The setting code is highlighted
+  (setq org-src-fontify-natively t)
+
+  ;; simple template
+  (require 'org-tempo)
+
+  ;; https://github.com/syl20bnr/spacemacs/commit/145126875731e8ee38770b2adf709805f23672f7
+  ;; https://github.com/integral-dw/org-superstar-mode#hide-leading-stars
+  ;; This is usually the default, but keep in mind it must be nil
+  (setq org-hide-leading-stars nil)
+  ;; This line is necessary.
+  (setq org-superstar-leading-bullet ?\s)
+  ;; https://github.com/integral-dw/org-superstar-mode#org-superstar-prettify-item-bullets
+  (setq org-superstar-prettify-item-bullets nil)
+  ;; system time locale
+  (setq system-time-locale "zh_CN.UTF-8")
+
+  (with-eval-after-load 'org
+    (progn
+      (org-defkey org-mode-map [(meta return)] 'org-meta-return)))
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -532,12 +596,74 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(compilation-message-face 'default)
+ '(cua-global-mark-cursor-color "#2aa198")
+ '(cua-normal-cursor-color "#839496")
+ '(cua-overwrite-cursor-color "#b58900")
+ '(cua-read-only-cursor-color "#859900")
+ '(evil-want-Y-yank-to-eol nil)
+ '(fci-rule-color "#073642")
+ '(highlight-changes-colors '("#d33682" "#6c71c4"))
+ '(highlight-parentheses-colors '("#2aa198" "#b58900" "#268bd2" "#6c71c4" "#859900"))
+ '(highlight-symbol-colors
+   '("#3b6b40f432d6" "#07b9463c4d36" "#47a3341e358a" "#1d873c3f56d5" "#2d86441c3361" "#43b7362d3199" "#061d417f59d7"))
+ '(highlight-symbol-foreground-color "#93a1a1")
+ '(highlight-tail-colors
+   '(("#073642" . 0)
+     ("#5b7300" . 20)
+     ("#007d76" . 30)
+     ("#0061a8" . 50)
+     ("#866300" . 60)
+     ("#992700" . 70)
+     ("#a00559" . 85)
+     ("#073642" . 100)))
+ '(hl-bg-colors
+   '("#866300" "#992700" "#a7020a" "#a00559" "#243e9b" "#0061a8" "#007d76" "#5b7300"))
+ '(hl-fg-colors
+   '("#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36" "#002b36"))
+ '(hl-paren-colors '("#2aa198" "#b58900" "#268bd2" "#6c71c4" "#859900"))
+ '(lsp-ui-doc-border "#93a1a1")
+ '(nrepl-message-colors
+   '("#dc322f" "#cb4b16" "#b58900" "#5b7300" "#b3c34d" "#0061a8" "#2aa198" "#d33682" "#6c71c4"))
  '(package-selected-packages
-   '(yasnippet-snippets xterm-color vterm treemacs-magit terminal-here smeargle shell-pop orgit org-rich-yank org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download org-cliplink org-brain multi-term mmm-mode markdown-toc magit-svn magit-section magit-gitflow magit-popup lsp-ui lsp-treemacs lsp-origami origami htmlize helm-org-rifle helm-lsp lsp-mode dash-functional helm-gitignore helm-git-grep helm-company helm-c-yasnippet gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy forge markdown-mode ghub closql emacsql-sqlite emacsql treepy flycheck-pos-tip pos-tip evil-org evil-magit magit git-commit with-editor transient eshell-z eshell-prompt-extras esh-help company auto-yasnippet yasnippet ac-ispell auto-complete ws-butler writeroom-mode winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package undo-tree treemacs-projectile treemacs-persp treemacs-icons-dired toc-org symon symbol-overlay string-inflection spaceline-all-the-icons restart-emacs request rainbow-delimiters popwin pcre2el password-generator paradox overseer org-superstar open-junk-file nameless move-text macrostep lorem-ipsum link-hint indent-guide hybrid-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-xref helm-themes helm-swoop helm-purpose helm-projectile helm-org helm-mode-manager helm-make helm-ls-git helm-flx helm-descbinds helm-ag google-translate golden-ratio font-lock+ flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu emr elisp-slime-nav editorconfig dumb-jump dotenv-mode diminish devdocs define-word column-enforce-mode clean-aindent-mode centered-cursor-mode auto-highlight-symbol auto-compile aggressive-indent ace-link ace-jump-helm-line)))
+   '(unfill ox-gfm mwim wgrep smex reveal-in-osx-finder osx-trash osx-dictionary osx-clipboard lsp-ivy launchctl ivy-yasnippet ivy-xref ivy-purpose ivy-hydra ivy-avy counsel-projectile counsel swiper ivy zenburn-theme zen-and-art-theme white-sand-theme underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme sunny-day-theme sublime-themes subatomic256-theme subatomic-theme spacegray-theme soothe-theme solarized-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme seti-theme reverse-theme rebecca-theme railscasts-theme purple-haze-theme professional-theme planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme naquadah-theme mustang-theme monokai-theme monochrome-theme molokai-theme moe-theme modus-vivendi-theme modus-operandi-theme minimal-theme material-theme majapahit-theme madhat2r-theme lush-theme light-soap-theme kaolin-themes jbeans-theme jazz-theme ir-black-theme inkpot-theme heroku-theme hemisu-theme hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gandalf-theme flatui-theme flatland-theme farmhouse-theme eziam-theme exotica-theme espresso-theme dracula-theme doom-themes django-theme darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme cyberpunk-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme chocolate-theme autothemer cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes afternoon-theme yasnippet-snippets xterm-color vterm treemacs-magit terminal-here smeargle shell-pop orgit org-rich-yank org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download org-cliplink org-brain multi-term mmm-mode markdown-toc magit-svn magit-section magit-gitflow magit-popup lsp-ui lsp-treemacs lsp-origami origami htmlize helm-org-rifle helm-lsp lsp-mode dash-functional helm-gitignore helm-git-grep helm-company helm-c-yasnippet gnuplot gitignore-templates gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md fuzzy forge markdown-mode ghub closql emacsql-sqlite emacsql treepy flycheck-pos-tip pos-tip evil-org evil-magit magit git-commit with-editor transient eshell-z eshell-prompt-extras esh-help company auto-yasnippet yasnippet ac-ispell auto-complete ws-butler writeroom-mode winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package undo-tree treemacs-projectile treemacs-persp treemacs-icons-dired toc-org symon symbol-overlay string-inflection spaceline-all-the-icons restart-emacs request rainbow-delimiters popwin pcre2el password-generator paradox overseer org-superstar open-junk-file nameless move-text macrostep lorem-ipsum link-hint indent-guide hybrid-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-xref helm-themes helm-swoop helm-purpose helm-projectile helm-org helm-mode-manager helm-make helm-ls-git helm-flx helm-descbinds helm-ag google-translate golden-ratio font-lock+ flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu emr elisp-slime-nav editorconfig dumb-jump dotenv-mode diminish devdocs define-word column-enforce-mode clean-aindent-mode centered-cursor-mode auto-highlight-symbol auto-compile aggressive-indent ace-link ace-jump-helm-line))
+ '(pos-tip-background-color "#073642")
+ '(pos-tip-foreground-color "#93a1a1")
+ '(smartrep-mode-line-active-bg (solarized-color-blend "#859900" "#073642" 0.2))
+ '(term-default-bg-color "#002b36")
+ '(term-default-fg-color "#839496")
+ '(vc-annotate-background nil)
+ '(vc-annotate-background-mode nil)
+ '(vc-annotate-color-map
+   '((20 . "#dc322f")
+     (40 . "#cb4366eb20b4")
+     (60 . "#c1167942154f")
+     (80 . "#b58900")
+     (100 . "#a6ae8f7c0000")
+     (120 . "#9ed892380000")
+     (140 . "#96be94cf0000")
+     (160 . "#8e5397440000")
+     (180 . "#859900")
+     (200 . "#77679bfc4635")
+     (220 . "#6d449d465bfd")
+     (240 . "#5fc09ea47092")
+     (260 . "#4c68a01784aa")
+     (280 . "#2aa198")
+     (300 . "#303498e7affc")
+     (320 . "#2fa1947cbb9b")
+     (340 . "#2c879008c736")
+     (360 . "#268bd2")))
+ '(vc-annotate-very-old-color nil)
+ '(weechat-color-list
+   '(unspecified "#002b36" "#073642" "#a7020a" "#dc322f" "#5b7300" "#859900" "#866300" "#b58900" "#0061a8" "#268bd2" "#a00559" "#d33682" "#007d76" "#2aa198" "#839496" "#657b83"))
+ '(xterm-color-names
+   ["#073642" "#dc322f" "#859900" "#b58900" "#268bd2" "#d33682" "#2aa198" "#eee8d5"])
+ '(xterm-color-names-bright
+   ["#002b36" "#cb4b16" "#586e75" "#657b83" "#839496" "#6c71c4" "#93a1a1" "#fdf6e3"]))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(default ((((class color) (min-colors 89)) (:foreground "#839496" :background "#002b36")))))
 )
